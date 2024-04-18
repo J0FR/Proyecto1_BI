@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 
 from io import StringIO
 #from django.http import FileResponse
-from fastapi import FastAPI, UploadFile, Request, requests
+from fastapi import FastAPI, Response, UploadFile, Request, requests
 from fastapi.templating import Jinja2Templates
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import HTMLResponse, FileResponse
@@ -24,7 +24,7 @@ from fastapi.responses import JSONResponse
 
 
 app = FastAPI()
-pipeline = load('assets/Modelomejorado.joblib')
+pipeline = load('assets/pipeline.joblib')
 # Entrenar el modelo con el dataset
 
 
@@ -35,12 +35,8 @@ def readRoot():
 
 @app.post('/predict')
 def makePredictions(dataModel: DataModel):
-    data_dict = dataModel.dict()
-    df=pd.DataFrame([data_dict], columns=dataModel.columns())
-    clean = Clean()
-    df['words'] = df['Review'].apply(clean.preprocessing)
-    predictions = pipeline.predict(df['words'])
-    return {'predictions': predictions.tolist()}
+    predictions = pipeline.predict(dataModel)
+    return {'predictions': predictions['Predict'].tolist()}
 
 @app.post("/upload")
 async def upload_csv(file: UploadFile = File(...)):
@@ -51,12 +47,13 @@ async def upload_csv(file: UploadFile = File(...)):
     try:
 
         dataframe= pd.read_csv(file.file)
-        dataframe= dataframe["Review"]
-        clean = Clean()
-        dataframe = dataframe.apply(clean.preprocessing)
+        print(dataframe.head())
         predictions = pipeline.predict(dataframe)
-        return{
-            "predictions": predictions.tolist()}
+        print(predictions)
+        # Pasar predictions a un csv y devolverlo
+        output = StringIO()
+        predictions.to_csv(output, index=False)
+        return Response(content=output.getvalue(), media_type='text/csv', headers={'Content-Disposition': f'attachment; filename=predictions_{file.filename}'})
         
         
     except Exception as e:
@@ -75,10 +72,9 @@ async def upload_csv(file: UploadFile = File(...)):
     try:
         dataframe = pd.read_csv(file.file)
         reviews = dataframe["Review"]
-        clean = Clean()
-        preprocessed_reviews = reviews.apply(clean.preprocessing)
+        
       
-        predictions = pipeline.predict(preprocessed_reviews)
+        predictions = pipeline.predict(reviews)
         dataframe['Predictions'] = predictions
         print(dataframe["Predictions"])
         
@@ -90,6 +86,12 @@ async def upload_csv(file: UploadFile = File(...)):
         
     except Exception as e:
         return JSONResponse(status_code=500, content={"message": "An error occurred while processing the file.", "error": str(e)})
+
+
+
+
+    
+
 
 
 
