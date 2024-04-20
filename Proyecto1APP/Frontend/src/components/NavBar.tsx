@@ -13,6 +13,10 @@ const NavBar = () => {
 						<Nav.Link href="/text">Predicción por Texto</Nav.Link>
 						<span className="separator">|</span> {}
 						<Nav.Link href="/csv">Predicción CSV</Nav.Link>
+						<span className="separator">|</span> {}
+						<Nav.Link href="/words">Palabras importantes</Nav.Link>
+						<span className="separator">|</span> {}
+						<Nav.Link href="/model">Modelo</Nav.Link>
 					</Nav>
 				</Navbar.Collapse>
 			</Navbar>

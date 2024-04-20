@@ -9,7 +9,7 @@ const TextPrediction = () => {
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		const postData = {
-			Review: input,
+			'Review': input,
 		};
 		try {
 			const response = await axios.post(
@@ -54,7 +54,7 @@ const TextPrediction = () => {
 					borderRadius: "5px",
 				}}
 			>
-				{prediction !== null ? prediction : "???"}
+				{prediction !== null ? prediction : ""}
 			</div>
 		</Container>
 	);

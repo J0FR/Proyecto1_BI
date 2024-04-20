@@ -9,6 +9,8 @@ from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, precision_score, recall_score, f1_score
 from sklearn.model_selection import RepeatedStratifiedKFold, GridSearchCV
+import numpy as np
+
 
 
 class CleaningProcess:
@@ -103,8 +105,33 @@ class Vectorizer:
         self.vectorizer = TfidfVectorizer()
         self.vect = None
         
+    def getVectWeights(self, data):
+        vect = TfidfVectorizer()
+        x = vect.fit_transform(data['words'])
+        vect.get_feature_names_out()
+
+        vect_score = np.asarray(x.mean(axis=0)).ravel().tolist()
+        vect_array = pd.DataFrame({'term': vect.get_feature_names_out(), 'weight': vect_score})
+        vect_array.sort_values(by='weight',ascending=False,inplace=True)
+
+        return vect_array
+    
+    def setImpact(self, df):
+        df1 = df[df['Class'] == 1]
+        df2 = df[df['Class'] == 2]
+        df3 = df[df['Class'] == 3]
+        df4 = df[df['Class'] == 4]
+        df5 = df[df['Class'] == 5]
+        
+        self.impact1 = self.getVectWeights(df1)
+        self.impact2 = self.getVectWeights(df2)
+        self.impact3 = self.getVectWeights(df3)
+        self.impact4 = self.getVectWeights(df4)
+        self.impact5 = self.getVectWeights(df5)
+        
     def fit(self, df, target=None):
         df = df.df
+        self.setImpact(df)
         X = self.vectorizer.fit_transform(df['words'])
         self.data = pd.DataFrame(X.todense())
         self.data['Class'] = df['Class']
@@ -149,17 +176,9 @@ class Model:
         self.f1 = None
         self.recall = None
         self.precision = None
-        self.model = SVC()
-        C = [50, 10, 1.0, 0.1, 0.01]
-        kernel = ['poly', 'rbf', 'sigmoid']
-        gamma = ['scale']
-        self.grid = dict(C=C, kernel=kernel, gamma=gamma)
-        self.cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)
-        
-        
+        self.model = SVC(C=1.0, kernel='poly', gamma='scale', probability=True)
 
     def fit(self, data, target=None):
-        self.model = GridSearchCV(estimator=self.model, param_grid=self.grid, n_jobs=-1, cv=self.cv, scoring='f1_weighted',error_score=0)
         X_train, X_test, Y_train, Y_test = train_test_split(data.x, data.y, test_size=0.2, random_state=42)
         self.model.fit(X_train, Y_train)
         Y_test_predictSVC = self.model.predict(X_test)
@@ -174,6 +193,7 @@ class Model:
     
     def predict(self, data):
         data.df['Predicted'] = self.model.predict(pd.DataFrame(data.vect.todense()))
+        print(self.model.predict_proba(pd.DataFrame(data.vect.todense())))
         data.df.drop('words', axis=1, inplace=True)
         data.df['Predicted'] = data.df['Predicted'].astype(int)
         return data.df

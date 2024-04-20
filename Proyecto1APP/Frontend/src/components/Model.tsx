@@ -2,14 +2,30 @@ import React, { useState } from "react";
 import { Button, Form, Container } from "react-bootstrap";
 import axios from "axios";
 
-const CsvPrediction = () => {
+const Model = () => {
+    const [f1, setF1] = useState(0);
+    const [recall, setRecall] = useState(0);
+    const [precision, setPrecision] = useState(0);
+    
+    const handleClick = async () => {
+        try {
+            const metrics = await axios.get(`http://127.0.0.1:8000/report`);
+            var obj = metrics.data;
+            console.log(obj);
+            setF1(obj.f1);
+            setRecall(obj.recall);
+            setPrecision(obj.precision);    
+        } catch (error) {
+            console.error("Error fetching prediction:", error);
+            alert("Failed to fetch prediction. Check the console for more details.");
+        }
+    };
+    handleClick()
 	const [file, setFile] = useState<File | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
-	const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
 
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setFile(e.target.files ? e.target.files[0] : null);
-		setDownloadUrl(null); // Reset download URL when file is changed
 	};
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -20,7 +36,7 @@ const CsvPrediction = () => {
 			formData.append("file", file);
 
 			try {
-				const response = await axios.post(
+                axios.post(
 					"http://127.0.0.1:8000/upload2",
 					formData,
 					{
@@ -30,8 +46,6 @@ const CsvPrediction = () => {
 						responseType: "blob", // Important: specify responseType
 					}
 				);
-				const url = window.URL.createObjectURL(new Blob([response.data]));
-				setDownloadUrl(url);
 				setIsUploading(false);
 			} catch (error) {
 				console.error("Error uploading file:", error);
@@ -41,10 +55,22 @@ const CsvPrediction = () => {
 	};
 
 	return (
+
 		<Container
-			style={{ maxWidth: "500px", margin: "0 auto", textAlign: "center" }}
+        style={{ maxWidth: "500px", margin: "0 auto", textAlign: "center" }}
 		>
-			<h1>Predicción CSV</h1>
+            <div>
+                <h1>Métricas del modelo</h1>
+                <div>
+                    <h3>Precisión: {precision}</h3>
+                    <h3>Recall: {recall}</h3>
+                    <h3>Puntaje F1: {f1}</h3>
+                </div>                
+            </div>
+            <div>
+                <h1>&nbsp;&nbsp;</h1>
+            </div>
+			<h1>Reentrenar modelo</h1>
 			<h4>Cargar archivo CSV...</h4>
 			<Form onSubmit={handleSubmit}>
 				<Form.Group controlId="formFile" className="mb-3">
@@ -58,22 +84,8 @@ const CsvPrediction = () => {
 					{isUploading ? "Cargando..." : "Enviar"}
 				</Button>
 			</Form>
-			<h4 className="mt-4">Descargar predicción...</h4>
-			{downloadUrl ? (
-				<a
-					href={downloadUrl}
-					download={`predictions_${file?.name}`}
-					className="btn btn-success mt-3"
-				>
-					Descargar
-				</a>
-			) : (
-				<Button variant="danger" className="mt-3" disabled>
-					Descargar
-				</Button>
-			)}
 		</Container>
 	);
 };
 
-export default CsvPrediction;
+export default Model;

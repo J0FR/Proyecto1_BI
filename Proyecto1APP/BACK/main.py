@@ -1,3 +1,4 @@
+import json
 from msilib.schema import File
 import os
 import sys
@@ -36,7 +37,9 @@ def readRoot():
 @app.post('/predict')
 def makePredictions(dataModel: DataModel):
     predictions = pipeline.predict(dataModel.Review)
-    return {'predictions': predictions['Predicted'].tolist()}
+    predictions = {'predictions': predictions['Predicted'].tolist()}
+    
+    return Response(content=json.dumps(predictions), media_type='application/json', headers={'Access-Control-Allow-Origin': '*'})
 
 @app.post("/upload")
 async def upload_csv(file: UploadFile = File(...)):
@@ -82,6 +85,51 @@ async def upload_csv(file: UploadFile = File(...)):
         
     except Exception as e:
         return JSONResponse(status_code=500, content={"message": "An error occurred while processing the file.", "error": str(e)})
+    
+    
+@app.post("/retrain")
+async def upload_csv(file: UploadFile = File(...)):
+    print(f"Received file: {file.filename}, Content type: {file.content_type}")
+    
+    if file.content_type not in ['text/csv', 'application/vnd.ms-excel']:
+        return JSONResponse(status_code=400, content={"message": "Invalid file type. Please upload a CSV file."})
+
+    try:
+        dataframe = pd.read_csv(file.file)
+      
+        pipeline.fit(dataframe)
+    
+        return Response(status_code=200, headers={'Access-Control-Allow-Origin': '*'})
+        
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"message": "An error occurred while processing the file.", "error": str(e)})
+    
+    
+@app.get("/report")
+def get_report():
+    
+    answer = {
+              'f1': pipeline['model'].f1, 
+              'precision': pipeline['model'].precision, 
+              'recall': pipeline['model'].recall}
+    
+    return Response(content=json.dumps(answer), media_type='application/json', headers={'Access-Control-Allow-Origin': '*'})
+
+@app.get("/words/{id}")
+def get_words(id: int):
+    variables = {1: pipeline['vectorizer'].impact1,
+                 2: pipeline['vectorizer'].impact2,
+                 3: pipeline['vectorizer'].impact3,
+                 4: pipeline['vectorizer'].impact4,
+                 5: pipeline['vectorizer'].impact5}
+    
+    vect_array = variables[id]
+    vect_array.rename(columns={'term': 'text'}, inplace=True)
+    vect_array.rename(columns={'weight': 'value'}, inplace=True)
+    vect_array = vect_array.to_json(orient='records')
+    return Response(content=vect_array, media_type='application/json', headers={'Access-Control-Allow-Origin': '*'})
+    
+
 
 
 
