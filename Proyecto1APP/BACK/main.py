@@ -58,7 +58,10 @@ def makePredictions(dataModel: DataModel):
     clean = Clean()
     df['words'] = df['Review'].apply(clean.preprocessing)
     predictions = pipeline2.predict(df['words'])
-    return {'predictions': predictions.tolist()}
+    score= pipeline2.predict_proba(df['words'])
+    score= max(score[0])
+    print(score)
+    return {'predictions': predictions.tolist(), 'score': score}
 
     
 @app.post("/upload2")
@@ -73,16 +76,19 @@ async def upload_csv(file: UploadFile = File(...)):
         reviews = dataframe["Review"]
         clean = Clean()
         preprocessed_reviews = reviews.apply(clean.preprocessing)
-      
+          
         predictions = pipeline2.predict(preprocessed_reviews)
         dataframe['Predictions'] = predictions
-        print(dataframe["Predictions"])
+        
+        scores = pipeline2.predict_proba(preprocessed_reviews)
+        dataframe['Score'] = [max(score) for score in scores]
         
         # Guardar el DataFrame modificado en un nuevo archivo CSV
         output_filename = 'predictions_' + file.filename
         output_path = os.path.join(os.getcwd(), output_filename)
         dataframe.to_csv(output_path, index=False, sep=';')
         return FileResponse(output_path, media_type='text/csv', filename=output_filename)
+    
         
     except Exception as e:
         return JSONResponse(status_code=500, content={"message": "An error occurred while processing the file.", "error":str(e)})
