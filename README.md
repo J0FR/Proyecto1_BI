@@ -18,9 +18,10 @@ pip install langdetect
 pip install imblearn
 pip install numpy
 pip install json
-
 npm config set legacy-peer-deps true
 npm install react-wordcloud
+npm install bootstrap
+npm install vite
 npm i
 ~~~~
 
@@ -29,6 +30,7 @@ También van a ser necesarios estos datasets que debes instalar utilizando los s
 import nltk
 nltk.download('stopwords')
 nltk.download('punkt')
+nltk.download('wordnet')
 ~~~~
 
 ## Uso
