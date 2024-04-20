@@ -10,7 +10,7 @@ const Model = () => {
     const handleClick = async () => {
         try {
             const metrics = await axios.get(`http://127.0.0.1:8000/report`);
-            var obj = metrics.data;
+            const obj = metrics.data;
             console.log(obj);
             setF1(obj.f1);
             setRecall(obj.recall);

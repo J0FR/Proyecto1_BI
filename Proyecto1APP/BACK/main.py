@@ -22,24 +22,45 @@ from io import StringIO
 
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()
 pipeline = load('assets/pipeline.joblib')
+pipeline2 = load('assets/Modelomejorado.joblib')
 # Entrenar el modelo con el dataset
+
+origins = [
+    'http://localhost/8000',
+    "http://127.0.0.1:8000",
+    'http://localhost:5173'
+
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 
 @app.get('/')
 def readRoot():
     return {'Hello': 'World'}
 
-
 @app.post('/predict')
 def makePredictions(dataModel: DataModel):
-    predictions = pipeline.predict(dataModel.Review)
-    predictions = {'predictions': predictions['Predicted'].tolist()}
-    
-    return Response(content=json.dumps(predictions), media_type='application/json', headers={'Access-Control-Allow-Origin': '*'})
+    data_dict = dataModel.dict()
+    df=pd.DataFrame([data_dict], columns=dataModel.columns())
+    clean = Clean()
+    df['words'] = df['Review'].apply(clean.preprocessing)
+    predictions = pipeline2.predict(df['words'])
+    return {'predictions': predictions.tolist()}
+
+
 
 @app.post("/upload")
 async def upload_csv(file: UploadFile = File(...)):
@@ -74,8 +95,13 @@ async def upload_csv(file: UploadFile = File(...)):
 
     try:
         dataframe = pd.read_csv(file.file)
+        reviews = dataframe["Review"]
+        clean = Clean()
+        preprocessed_reviews = reviews.apply(clean.preprocessing)
       
-        predictions = pipeline.predict(dataframe)
+        predictions = pipeline2.predict(preprocessed_reviews)
+        dataframe['Predictions'] = predictions
+        print(dataframe["Predictions"])
         
         # Guardar el DataFrame modificado en un nuevo archivo CSV
         output_filename = 'predictions_' + file.filename
@@ -84,7 +110,7 @@ async def upload_csv(file: UploadFile = File(...)):
         return FileResponse(output_path, media_type='text/csv', filename=output_filename)
         
     except Exception as e:
-        return JSONResponse(status_code=500, content={"message": "An error occurred while processing the file.", "error": str(e)})
+        return JSONResponse(status_code=500, content={"message": "An error occurred while processing the file.", "error":str(e)})
     
     
 @app.post("/retrain")
