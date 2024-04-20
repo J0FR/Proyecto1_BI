@@ -1,0 +1,12 @@
+  cd react-app
+  npm install
+  npm run dev
+
+
+ctrl + d| selecte different items
+ctrl + p | look for files
+
+ctrp + p | look for wrap fragment
+
+
+a react component can hold only one component
