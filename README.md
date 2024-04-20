@@ -22,6 +22,8 @@ pip install json
 npm config set legacy-peer-deps true
 npm install react-wordcloud
 npm i
+npm install bootstrap
+npm install 
 ~~~~
 
 También van a ser necesarios estos datasets que debes instalar utilizando los siguientes comandos desde el interpreter de python que se inicia con `python` o `py`:
@@ -29,6 +31,7 @@ También van a ser necesarios estos datasets que debes instalar utilizando los s
 import nltk
 nltk.download('stopwords')
 nltk.download('punkt')
+nltk.download('wordnet')
 ~~~~
 
 ## Uso
