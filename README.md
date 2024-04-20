@@ -22,7 +22,6 @@ pip install json
 npm config set legacy-peer-deps true
 npm install react-wordcloud
 npm i
-
 ~~~~
 
 También van a ser necesarios estos datasets que debes instalar utilizando los siguientes comandos desde el interpreter de python que se inicia con `python` o `py`:
