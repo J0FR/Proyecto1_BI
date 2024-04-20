@@ -35,8 +35,8 @@ def readRoot():
 
 @app.post('/predict')
 def makePredictions(dataModel: DataModel):
-    predictions = pipeline.predict(dataModel)
-    return {'predictions': predictions['Predict'].tolist()}
+    predictions = pipeline.predict(dataModel.Review)
+    return {'predictions': predictions['Predicted'].tolist()}
 
 @app.post("/upload")
 async def upload_csv(file: UploadFile = File(...)):
@@ -66,17 +66,13 @@ async def upload_csv(file: UploadFile = File(...)):
 async def upload_csv(file: UploadFile = File(...)):
     print(f"Received file: {file.filename}, Content type: {file.content_type}")
     
-    if file.content_type != 'text/csv':
+    if file.content_type not in ['text/csv', 'application/vnd.ms-excel']:
         return JSONResponse(status_code=400, content={"message": "Invalid file type. Please upload a CSV file."})
 
     try:
         dataframe = pd.read_csv(file.file)
-        reviews = dataframe["Review"]
-        
       
-        predictions = pipeline.predict(reviews)
-        dataframe['Predictions'] = predictions
-        print(dataframe["Predictions"])
+        predictions = pipeline.predict(dataframe)
         
         # Guardar el DataFrame modificado en un nuevo archivo CSV
         output_filename = 'predictions_' + file.filename

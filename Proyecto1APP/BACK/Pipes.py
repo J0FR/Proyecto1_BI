@@ -176,5 +176,4 @@ class Model:
         data.df['Predicted'] = self.model.predict(pd.DataFrame(data.vect.todense()))
         data.df.drop('words', axis=1, inplace=True)
         data.df['Predicted'] = data.df['Predicted'].astype(int)
-        print(data.df['Predicted'].value_counts())
         return data.df
