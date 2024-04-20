@@ -60,32 +60,7 @@ def makePredictions(dataModel: DataModel):
     predictions = pipeline2.predict(df['words'])
     return {'predictions': predictions.tolist()}
 
-
-
-@app.post("/upload")
-async def upload_csv(file: UploadFile = File(...)):
-    print(f"Received file: {file.filename}, Content type: {file.content_type}")
-    if file.content_type != 'text/csv':
-        return JSONResponse(status_code=400, content={"message": "Invalid file type. Please upload a CSV file."})
-
-    try:
-
-        dataframe= pd.read_csv(file.file)
-        print(dataframe.head())
-        predictions = pipeline.predict(dataframe)
-        print(predictions)
-        # Pasar predictions a un csv y devolverlo
-        output = StringIO()
-        predictions.to_csv(output, index=False)
-        return Response(content=output.getvalue(), media_type='text/csv', headers={'Content-Disposition': f'attachment; filename=predictions_{file.filename}'})
-        
-        
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"message": "An error occurred while processing the file.", "error": str(e)})
     
-    
-
-
 @app.post("/upload2")
 async def upload_csv(file: UploadFile = File(...)):
     print(f"Received file: {file.filename}, Content type: {file.content_type}")
@@ -106,7 +81,7 @@ async def upload_csv(file: UploadFile = File(...)):
         # Guardar el DataFrame modificado en un nuevo archivo CSV
         output_filename = 'predictions_' + file.filename
         output_path = os.path.join(os.getcwd(), output_filename)
-        dataframe.to_csv(output_path, index=False)
+        dataframe.to_csv(output_path, index=False, sep=';')
         return FileResponse(output_path, media_type='text/csv', filename=output_filename)
         
     except Exception as e:
