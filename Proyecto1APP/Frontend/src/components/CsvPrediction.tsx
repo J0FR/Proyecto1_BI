@@ -44,7 +44,7 @@ const CsvPrediction = () => {
 		<Container
 			style={{ maxWidth: "500px", margin: "0 auto", textAlign: "center" }}
 		>
-			<h1>Predicción CSV</h1>
+			<h1 style={{fontWeight: "bold"}}>Predicción CSV</h1>
 			<h4>Cargar archivo CSV...</h4>
 			<Form onSubmit={handleSubmit}>
 				<Form.Group controlId="formFile" className="mb-3">

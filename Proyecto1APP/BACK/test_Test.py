@@ -1,7 +1,10 @@
-import joblib
-import pandas as pd
+# import joblib
+# import pandas as pd
 
-# Load the joblib model
-model = joblib.load('Proyecto1APP/BACK/assets/pipeline.joblib')
+# # Load the joblib model
+# model = joblib.load('Proyecto1APP/BACK/assets/pipeline.joblib')
 
-print(model['vectorizer'].impact1)
+# print(model['vectorizer'].impact1)
+
+import nltk
+nltk.download('wordnet')

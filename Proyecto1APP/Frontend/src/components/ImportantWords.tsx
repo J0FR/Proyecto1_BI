@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import "tippy.js/dist/tippy.css";
 import "tippy.js/animations/scale.css";
 import axios from "axios";
@@ -47,6 +47,7 @@ const ImportantWords = () => {
     return (
         <div>
             <div>
+			<h1 style={{fontWeight: "bold", justifyContent: "center", display: "flex"}}>Palabras más relevantes por Clase</h1>
                 <div style={{ display: "flex", justifyContent: "center" }}>
                     <h3 id="label1" onClick={() => handleClick(1)}>Clase 1&nbsp;&nbsp;</h3>
                     <h3 id="label2" onClick={() => handleClick(2)}>Clase 2&nbsp;&nbsp;</h3>

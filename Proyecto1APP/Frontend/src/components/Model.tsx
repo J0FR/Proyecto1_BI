@@ -57,19 +57,34 @@ const Model = () => {
 	return (
 
 		<Container
-        style={{ maxWidth: "500px", margin: "0 auto", textAlign: "center" }}
+		style={{ maxWidth: "500px", margin: "0 auto", textAlign: "center" }}
 		>
-            <div>
-                <h1>Métricas del modelo</h1>
-                <div>
-                    <h3>Precisión: {precision}</h3>
-                    <h3>Recall: {recall}</h3>
-                    <h3>Puntaje F1: {f1}</h3>
-                </div>                
-            </div>
-            <div>
-                <h1>&nbsp;&nbsp;</h1>
-            </div>
+			<div>
+				<h1 style={{fontWeight: "bold"}}>Métricas del modelo</h1>
+				<div style={{display: "flex", justifyContent: "center", alignContent: 'center', textAlign:'center', verticalAlign:'middle'}}>
+					<div>
+					<h5>Precisión: &nbsp;</h5>
+					<meter style={{minWidth:'100px', minHeight:'30px'}} value={precision}></meter>
+					<h5>&nbsp;{precision.toFixed(2)}</h5>
+					</div>
+					&nbsp;&nbsp;&nbsp;
+					<div>
+					<h5>Recall: &nbsp;</h5>
+					<meter style={{minWidth:'100px', minHeight:'30px'}} value={recall}></meter>
+					<h5>&nbsp;{recall.toFixed(2)}</h5>
+					</div>
+					&nbsp;&nbsp;&nbsp;
+					<div>
+					<h5>Puntaje F1: &nbsp;</h5>
+					<meter style={{minWidth:'100px', minHeight:'30px'}} value={f1}></meter>
+					<h5>&nbsp;{f1.toFixed(2)}</h5>
+
+					</div>
+				</div>                
+			</div>
+			<div>
+				<h1>&nbsp;&nbsp;</h1>
+			</div>
 			<h1>Reentrenar modelo</h1>
 			<h4>Cargar archivo CSV...</h4>
 			<Form onSubmit={handleSubmit}>

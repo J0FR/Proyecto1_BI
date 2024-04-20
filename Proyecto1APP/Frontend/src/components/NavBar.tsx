@@ -14,7 +14,7 @@ const NavBar = () => {
 						<span className="separator">|</span> {}
 						<Nav.Link href="/csv">Predicción CSV</Nav.Link>
 						<span className="separator">|</span> {}
-						<Nav.Link href="/words">Palabras importantes</Nav.Link>
+						<Nav.Link href="/words">Relevancia por Clase</Nav.Link>
 						<span className="separator">|</span> {}
 						<Nav.Link href="/model">Modelo</Nav.Link>
 					</Nav>
