@@ -17,9 +17,7 @@ dftest=pd.read_csv("Proyecto1APP/BACK/assets/entrenamiento_estudiantes.csv")
 pd.options.mode.chained_assignment = None
 
 print("Entrenando modelo")
-pipeline.fit(dftest)
-print(pipeline['model'].report)
-print(pipeline.predict('Hola como estas que bien ah bueno'))    # Apply the transformation to the dataframe
+pipeline.fit(dftest)  # Apply the transformation to the dataframe
 
 dump(pipeline, 'Proyecto1APP/BACK/assets/pipeline.joblib', compress=True)
 # print("Modelo guardado")
